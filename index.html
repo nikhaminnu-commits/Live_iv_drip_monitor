@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IV Bag Remote Dashboard</title>
+    <!-- Firebase SDK Modular v9 Compatibility Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background: #ffffff; width: 100%; max-width: 420px; border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center; }
+        h2 { color: #1e293b; margin-bottom: 20px; }
+        .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+        .val-display { font-size: 2.5rem; font-weight: 700; color: #0284c7; }
+        .gauge-outer { background: #cbd5e1; border-radius: 12px; height: 20px; width: 100%; overflow: hidden; margin-top: 8px; }
+        .gauge-inner { background: #16a34a; height: 100%; width: 0%; transition: width 0.4s ease-in-out, background-color 0.4s ease; }
+        .status-badge { display: inline-block; padding: 12px 20px; border-radius: 8px; font-weight: 600; color: white; background-color: #16a34a; width: 85%; margin-top: 10px; }
+        .status-badge.alert { background-color: #dc2626; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.7; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>IV Bag Live Monitor</h2>
+    
+    <div class="card">
+        <span style="color: #64748b;">Remaining Weight</span>
+        <div class="val-display"><span id="weight">0.0</span> <span style="font-size: 1.2rem;">g</span></div>
+    </div>
+
+    <div class="card">
+        <span style="color: #64748b;">Fluid Level</span>
+        <div style="font-size: 1.5rem; font-weight: 600; margin-bottom: 6px;"><span id="percent">0.0</span>%</div>
+        <div class="gauge-outer">
+            <div id="bar" class="gauge-inner"></div>
+        </div>
+    </div>
+
+    <div id="status" class="status-badge">STATUS: NORMAL</div>
+</div>
+
+<script>
+    // Your exact Firebase configuration keys
+    const firebaseConfig = {
+        apiKey: "AIzaSyB5X2IMJZej775lH9ZPfKh_qxzJE0tHwf8",
+        authDomain: "iv-alert.firebaseapp.com",
+        databaseURL: "https://iv-alert-default-rtdb.firebaseio.com",
+        projectId: "iv-alert",
+        storageBucket: "iv-alert.firebasestorage.app",
+        messagingSenderId: "145775079739",
+        appId: "1:145775079739:web:f6a1cc4856d94f72ff071e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Listen for real-time updates from Firebase
+    db.ref('/IV_System').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        const weight = data.Weight || 0;
+        const percent = data.Percentage || 0;
+        const isAlert = data.Alert || false;
+
+        document.getElementById('weight').innerText = weight.toFixed(1);
+        document.getElementById('percent').innerText = percent.toFixed(1);
+
+        const bar = document.getElementById('bar');
+        bar.style.width = Math.min(Math.max(percent, 0), 100) + '%';
+
+        const statusBadge = document.getElementById('status');
+        if (isAlert) {
+            statusBadge.innerText = 'ALERT: CRITICAL LOW / FLOW STOPPED';
+            statusBadge.className = 'status-badge alert';
+            bar.style.backgroundColor = '#dc2626';
+        } else {
+            statusBadge.innerText = 'STATUS: NORMAL';
+            statusBadge.className = 'status-badge';
+            bar.style.backgroundColor = '#16a34a';
+        }
+    });
+</script>
+
+</body>
+</html>

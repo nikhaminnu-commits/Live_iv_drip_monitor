@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IV Bag Remote Dashboard</title>
-    <!-- Firebase SDK Modular v9 Compatibility Scripts -->
+    <title>IV Bag Remote Monitor</title>
+    <!-- Firebase SDK JS Compatibility Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
@@ -42,7 +42,6 @@
 </div>
 
 <script>
-    // Your exact Firebase configuration keys
     const firebaseConfig = {
         apiKey: "AIzaSyB5X2IMJZej775lH9ZPfKh_qxzJE0tHwf8",
         authDomain: "iv-alert.firebaseapp.com",
@@ -56,7 +55,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Listen for real-time updates from Firebase
     db.ref('/IV_System').on('value', (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
